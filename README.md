@@ -1,0 +1,1 @@
+# perspectives-rabbitmq-service
