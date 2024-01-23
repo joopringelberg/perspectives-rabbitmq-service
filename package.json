@@ -1,0 +1,22 @@
+{
+  "name": "perspectives-rabbitmq-service",
+  "version": "1.0.0",
+  "description": "A simple service that proxies for a local RabbitMQ server.",
+  "main": "selfregister.js",
+  "scripts": {
+    "publish": "scp -r ./src/* joop@inplace.works:/home/joop/rbsr"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joopringelberg/perspectives-rabbitmq-service.git"
+  },
+  "author": "Joop Ringelberg",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/joopringelberg/perspectives-rabbitmq-service/issues"
+  },
+  "homepage": "https://github.com/joopringelberg/perspectives-rabbitmq-service#readme",
+  "dependencies": {
+    "yargs": "^17.7.2"
+  }
+}
