@@ -15,7 +15,7 @@ It interacts with the RabbitMQ server listening on host `--rabbithost` (default:
 
 Finally, set a maximum number of user accounts permitted with parameter `--maxusers`.
 
-It uses a RabbitMQ account with management priviliges to access the management api (https://rawcdn.githack.com/rabbitmq/rabbitmq-management/v3.8.7/priv/www/api/index.html and see https://www.rabbitmq.com/management.html). The credentials for this account should be passed in with parameters `--admin` and `--adminpassword`
+It uses a RabbitMQ account with management priviliges to access the [management api](https://rawcdn.githack.com/rabbitmq/rabbitmq-management/v3.8.7/priv/www/api/index.html) (but also see [this page](https://www.rabbitmq.com/management.html)). The credentials for this account should be passed in with parameters `--admin` and `--adminpassword`
 
 To access the server, create a POST request and send a payload consisting of this object:
 
@@ -29,10 +29,24 @@ The first time that the end user tries to access RabbitMQ with his credentials a
 
 This allows the service user to create a queue whose identity only it is in the know, while it can invite peers to use `userName` to sent him messages.
 
-## Starting the server
+## Installing
+Install using npm:
+
+```
+npm install git+https://github.com/joopringelberg/perspectives-rabbitmq-service.git
+```
+
+## Starting the server manually
 The server must be started on the same host that runs the RabbitMQ service.
 
 An example of starting the service manually can be found in the shell script `startservice.sh`.
+
+## Making the service a deamon with pm2
+To make sure that the service is restarted after system boot, install [pm2](https://www.npmjs.com/package/pm2) on the server. Then start this service through pm2 like this:
+
+```
+pm2 start selfregister.js -- --port=5988 --rabbithost=localhost --rabbitport=15672 --admin=ADMIN --adminpassword=PASSWORD --maxusers=100
+```
 
 ## Developing
 For https://mycontexts.com, the three source files can be copied to `/home/joop/rbsr` with the package script `publish`.
