@@ -13,6 +13,8 @@ It listens on the port configured with runtime parameter `--port` (in this examp
 
 It interacts with the RabbitMQ server listening on host `--rabbithost` (default: `localhost`) and port `--rabbitport`.
 
+Finally, set a maximum number of user accounts permitted with parameter `--maxusers`.
+
 It uses a RabbitMQ account with management priviliges to access the management api (https://rawcdn.githack.com/rabbitmq/rabbitmq-management/v3.8.7/priv/www/api/index.html and see https://www.rabbitmq.com/management.html). The credentials for this account should be passed in with parameters `--admin` and `--adminpassword`
 
 To access the server, create a POST request and send a payload consisting of this object:
@@ -21,7 +23,7 @@ To access the server, create a POST request and send a payload consisting of thi
 { userName, password, queueName }
 ```
 
-The userName - password combination will be granted user status of the RabbitMQ server, provided the total number of registered users is not above a threshold configured in the file `maxusers.json`. Moreover, that user will be given exactly the required rights to be able to register the queue and a binding key to it.
+The userName - password combination will be granted user status of the RabbitMQ server, provided the total number of registered users is not above the threshold configured with the parameter `maxusers`. Moreover, that user will be given exactly the required rights to be able to register the queue and a binding key to it.
 
 The first time that the end user tries to access RabbitMQ with his credentials and tries to register listening to the queue, that queue will be created and the userName is used as binding key for this queue. Consequently, messages sent to `topic/<userName>` will end up in `queueName`.
 
@@ -34,3 +36,9 @@ An example of starting the service manually can be found in the shell script `st
 
 ## Developing
 For https://mycontexts.com, the three source files can be copied to `/home/joop/rbsr` with the package script `publish`.
+
+There is a test in the npm package. To test from the command line, use this:
+
+```
+curl -X POST https://mycontexts.com/rbsr -k -d '{"userName":"aap","password":"noot","queueName":"mies"}'
+```

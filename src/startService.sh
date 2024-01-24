@@ -1,1 +1,1 @@
-node $(dirname $0)/selfregister.js --port=5988 --rabbithost=localhost --rabbitport=15673 --admin=joopring --adminpassword=dOnkered1g
+node $(dirname $0)/selfregister.js --port=5988 --rabbithost=localhost --rabbitport=15672 --admin=joopring --adminpassword=dOnkered1g --maxusers=15
