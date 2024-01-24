@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A simple service that proxies for a local RabbitMQ server.",
   "main": "selfregister.js",
+  "files": [ "src"],
   "scripts": {
     "publish": "scp -r ./src/* joop@inplace.works:/home/joop/rbsr",
     "test": "curl -X POST https://mycontexts.com/rbsr -k -d '{\"userName\":\"aap\",\"password\":\"noot\",\"queueName\":\"mies\"}'"
