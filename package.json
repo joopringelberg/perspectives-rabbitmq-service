@@ -1,7 +1,7 @@
 {
   "name": "perspectives-rabbitmq-service",
-  "version": "1.0.0",
-  "description": "A simple service that proxies for a local RabbitMQ server.",
+  "version": "1.1.0",
+  "description": "A simple service that proxies for a local RabbitMQ server. Use pm2 to run as a deamon.",
   "main": "selfregister.js",
   "files": [ "src"],
   "scripts": {
