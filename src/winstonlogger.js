@@ -22,23 +22,26 @@
 
 const winston = require('winston');
 
-const logger = winston.createLogger({
-  level: 'info',  // Minimum log level (can be 'debug', 'info', 'warn', 'error')
-  format: winston.format.combine(
-    winston.format.colorize(),
-    winston.format.timestamp(),
-    winston.format.printf(({ timestamp, level, message }) => {
-      return `${timestamp} ${level}: ${message}`;
-    })
-  ),
-  transports: [
-    // Logs to console
-    new winston.transports.Console(),
-    // Logs to a file (logs errors specifically)
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
-  ],
-});
-
+// Minimum log level (can be 'debug', 'info', 'warn', 'error')
+function createLogger(level)
+{
+  return winston.createLogger({
+    level: level,  
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.timestamp(),
+      winston.format.printf(({ timestamp, level, message }) => {
+        return `${timestamp} ${level}: ${message}`;
+      })
+    ),
+    transports: [
+      // Logs to console
+      new winston.transports.Console(),
+      // Logs to a file (logs errors specifically)
+      new winston.transports.File({ filename: 'error.log', level: 'error' }),
+      new winston.transports.File({ filename: 'combined.log' }),
+    ],
+  });
+}
 // Export the logger to use in other modules
-module.exports = logger;
+module.exports = createLogger;

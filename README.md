@@ -13,7 +13,19 @@ It listens on the port configured with runtime parameter `--port` (in this examp
 
 It interacts with the RabbitMQ server listening on host `--rabbithost` (default: `localhost`) and port `--rabbitport`.
 
-Finally, set a maximum number of user accounts permitted with parameter `--maxusers`.
+Set a maximum number of user accounts permitted with parameter `--maxusers`.
+
+Finally, provide the logger level with optional parameter `--level` (default is 'info'). Levels can be:
+
+* error: 0,
+* warn: 1,
+* info: 2,
+* http: 3,
+* verbose: 4,
+* debug: 5,
+* silly: 6
+
+All logging statements with the provided level or lower will end up in the log files. There are two files: `error.log` and `combined.log`. Both are found in the directory from which the process starts.
 
 It uses a RabbitMQ account with management priviliges to access the [management api](https://rawcdn.githack.com/rabbitmq/rabbitmq-management/v3.8.7/priv/www/api/index.html) (but also see [this page](https://www.rabbitmq.com/management.html)). The credentials for this account should be passed in with parameters `--admin` and `--adminpassword`
 
@@ -45,7 +57,7 @@ An example of starting the service manually can be found in the shell script `st
 To make sure that the service is restarted after system boot, install [pm2](https://www.npmjs.com/package/pm2) on the server. Then start this service through pm2 like this:
 
 ```
-pm2 start selfregister.js -- --port=5988 --rabbithost=localhost --rabbitport=15672 --admin=ADMIN --adminpassword=PASSWORD --maxusers=100
+pm2 start selfregister.js -- --port=5988 --rabbithost=localhost --rabbitport=15672 --admin=ADMIN --adminpassword=PASSWORD --maxusers=100 --level=error
 ```
 
 ## Developing

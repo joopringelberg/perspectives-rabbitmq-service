@@ -31,13 +31,24 @@ const rabbitPort = argv.rabbitport;
 const admin = argv.admin;
 const adminPassword = argv.adminpassword;
 const maxUsers = argv.maxusers;
+const winstonlevel = argv.level || 'info'
 const nodesEndpoint = "api/nodes/";
 const vhost = "mycontexts";
 const usersEndpoint = "api/users/";
 const permissionsEndpoint = "api/permissions/";
 const queueEndpoint = `/api/queues/${vhost}/`;
 
-const logger = require('./logger');
+// const levels = {
+//     error: 0,
+//     warn: 1,
+//     info: 2,
+//     http: 3,
+//     verbose: 4,
+//     debug: 5,
+//     silly: 6
+//   };
+// All messages equal to or lower than the provided level end up in the logfiles.
+const logger = require('./winstonlogger.js')(winstonlevel);
 
 
 // This listener is applied to all requests at the /rbsr endpoint.
@@ -55,11 +66,12 @@ const requestListener = function (req, res) {
         let payload
         try 
         {
-            
+            logger.verbose( `requestListener with payload to parse: {result}` );
             payload = JSON.parse(result);
         } 
         catch (ex) 
         {
+            logger.error(`Error in requestListener: bad JSON. Expected { userName, password, queueName }, got: ${payload}`);
             res.writeHead(400);
             return res.end(`Bad JSON. Expected { userName, password, queueName }, got: ${payload}`);
         }
@@ -92,15 +104,18 @@ server.listen(port, host, () => {
 
 function checkNumberOfAccounts()
 {
+    logger.verbose('Entering checkNumberOfAccounts.');
     return getCurrentNumberOfUsers().then( n => {
         return new Promise((resolve, reject) => 
         {
             if (n < maxUsers)
             {
+                logger.verbose('Number of accounts is less then maximum: ' + n);
                 resolve( true );
             }
             else
             {
+                logger.warn('Maximum number of users reached, no new accounts possible.');
                 reject( "Maximum number of users reached, no new accounts possible.");
             }})
     })
@@ -108,6 +123,7 @@ function checkNumberOfAccounts()
 
 function getCurrentNumberOfUsers()
 {
+    logger.verbose( `Entering getCurrentNumberOfUsers.`);
     return new Promise((resolve, reject) => {
         const options = {
             hostname: rabbitHost,
@@ -130,7 +146,7 @@ function getCurrentNumberOfUsers()
                     users = JSON.parse( Buffer.concat(chunks).toString() );
                 }
                 catch (e){
-                    reject( `Incorrect JSON returned from RabbitMQ: ${e}.` );
+                    reject( `Error in getCurrentNumberOfUsers: incorrect JSON returned from RabbitMQ: ${e}.` );
                 }
                 logger.info( `Currently, we have ${users.length} users.`)
                 resolve( users.length );
@@ -138,7 +154,7 @@ function getCurrentNumberOfUsers()
         });
         
         req.on("error", (error) => {
-            logger.error( error.message ? error.message : error.toString());
+            logger.error( `Error in getCurrentNumberOfUsers: {error.message ? error.message : error.toString()}.`);
             reject(error);
             });
         req.end();
@@ -153,6 +169,7 @@ function setPermissions( userName, queueName )
         , write: queueName + "|amq\\.topic"
         , read: queueName + "|amq\\.topic"
         } );
+    logger.verbose( `Entering setPermissions with {data}.`);
     return new Promise((resolve, reject) => {
         const options = {
             hostname: rabbitHost,
@@ -174,12 +191,14 @@ function setPermissions( userName, queueName )
             });
         
             res.on("end", () => {
-                resolve( Buffer.concat(chunks).toString() );
+                const result = Buffer.concat(chunks).toString();
+                logger.verbose( `setPermissions: result from RabbitMQ call is: {result}.` );
+                resolve( result );
             });
           });
         
           req.on("error", (error) => {
-            logger.error( error.message ? error.message : error.toString());
+            logger.error( `Error in call from setPermissions to RabbitMQ:  {error.message ? error.message : error.toString()}` );
             reject(error);
           });
           req.write( data );
@@ -191,6 +210,7 @@ function setPermissions( userName, queueName )
 function createAccount( userName, password )
 {
     const data = JSON.stringify( {password, tags: ""} );
+    logger.verbose( `Entering createAccount with: {data}.`);
     return new Promise((resolve, reject) => {
         const options = {
             hostname: rabbitHost,
@@ -212,12 +232,14 @@ function createAccount( userName, password )
             });
         
             res.on("end", () => {
-                resolve( Buffer.concat(chunks).toString() );
+                const result = Buffer.concat(chunks).toString();
+                logger.verbose( `createAccount: {result}.`)
+                resolve( result );
             });
           });
         
           req.on("error", (error) => {
-            logger.error( error.message ? error.message : error.toString());
+            logger.error( `Error in createAccount: {error.message ? error.message : error.toString()}`);
             reject(error);
           });
           req.write( data );
