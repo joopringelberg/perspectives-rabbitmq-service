@@ -3,7 +3,9 @@
   "version": "1.1.0",
   "description": "A simple service that proxies for a local RabbitMQ server. Use pm2 to run as a deamon.",
   "main": "selfregister.js",
-  "files": [ "src"],
+  "files": [
+    "src"
+  ],
   "scripts": {
     "publish": "scp -r ./src/* joop@inplace.works:/home/joop/rbsr",
     "test": "curl -X POST https://mycontexts.com/rbsr -k -d '{\"userName\":\"aap\",\"password\":\"noot\",\"queueName\":\"mies\"}'"
@@ -19,6 +21,7 @@
   },
   "homepage": "https://github.com/joopringelberg/perspectives-rabbitmq-service#readme",
   "dependencies": {
+    "winston": "^3.17.0",
     "yargs": "^17.7.2"
   }
 }

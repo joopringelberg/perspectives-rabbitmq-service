@@ -37,6 +37,8 @@ const usersEndpoint = "api/users/";
 const permissionsEndpoint = "api/permissions/";
 const queueEndpoint = `/api/queues/${vhost}/`;
 
+const logger = require('./logger');
+
 
 // This listener is applied to all requests at the /rbsr endpoint.
 const requestListener = function (req, res) {
@@ -85,7 +87,7 @@ const requestListener = function (req, res) {
 
 const server = http.createServer(requestListener);
 server.listen(port, host, () => {
-    console.log(`Server is running on http://${host}:${port}`);
+    logger.info(`Server is running on http://${host}:${port}`);
 });
 
 function checkNumberOfAccounts()
@@ -130,13 +132,13 @@ function getCurrentNumberOfUsers()
                 catch (e){
                     reject( `Incorrect JSON returned from RabbitMQ: ${e}.` );
                 }
-                console.log( `Currently, we have ${users.length} users.`)
+                logger.info( `Currently, we have ${users.length} users.`)
                 resolve( users.length );
             });
         });
         
         req.on("error", (error) => {
-            console.log( error )
+            logger.error( error.message ? error.message : error.toString());
             reject(error);
             });
         req.end();
@@ -177,7 +179,7 @@ function setPermissions( userName, queueName )
           });
         
           req.on("error", (error) => {
-            console.log( error )
+            logger.error( error.message ? error.message : error.toString());
             reject(error);
           });
           req.write( data );
@@ -215,7 +217,7 @@ function createAccount( userName, password )
           });
         
           req.on("error", (error) => {
-            console.log( error )
+            logger.error( error.message ? error.message : error.toString());
             reject(error);
           });
           req.write( data );
