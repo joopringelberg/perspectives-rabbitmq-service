@@ -1,10 +1,21 @@
 # perspectives-rabbitmq-service
-A simple service that proxies for a local RabbitMQ server. It should be behind a solid HTTP server such as Apache.
+A simple service that proxies a request for registration to a local RabbitMQ server. It should itself be a back-end service that a solid HTTP server such as Apache proxies to.
 
 The Perspectives Distributed Runtime (PDR) is written such that it assumes that this service is available on the endpoint `/rbsr`. Apache must be configured to pass any request to this endpoint to the local service that can be spun up using the program given in this module. Here is a suitable Apache conf section:
 
 ```
-    <Location "/rbsr>
+    <Location "/rbsr/">
+      # Enable CORS headers
+      Header set Access-Control-Allow-Origin "https://mycontexts.com"
+      Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+      Header set Access-Control-Allow-Headers "Content-Type"
+      Header set Access-Control-Allow-Credentials "true"
+      Header set Access-Control-Expose-Headers "Content-Type, Cache-Control, Accept-Ranges, ETag, Server"
+
+      # Handle OPTIONS requests (preflight requests)
+      SetEnvIf Request_Method OPTIONS OPTIONS_REQUEST
+      Header always set Access-Control-Max-Age "3600" env=OPTIONS_REQUEST
+
       ProxyPass http://localhost:5988
     </Location>
 ```
@@ -59,6 +70,10 @@ To make sure that the service is restarted after system boot, install [pm2](http
 ```
 pm2 start selfregister.js -- --port=5988 --rabbithost=localhost --rabbitport=15672 --admin=ADMIN --adminpassword=PASSWORD --maxusers=100 --level=error
 ```
+## Apache configuration
+Even though the PDR consists of scripts in the domain https://mycontexts.com and the perspectives-rabbitmq-service is served from the same domain, because it is requested from within a Service Worker (actually, the SharedWorker running the PDR requests it, but all of its requests are sent through a Service Worker), the browser considers it to be a cross-domain request. For that reason, we need to have Apache send back CORS headers.
+
+It turns out that (at least per december 5, 2024) _credentials in the url_ make Chrome (build 131.0.6778.86) reject the request (giving a minimally worded Cors reason). FireFox (130.0b9) lets it go through.
 
 ## Developing
 For https://mycontexts.com, the three source files can be copied to `/home/joop/rbsr` with the package script `publish`.
