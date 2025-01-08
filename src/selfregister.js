@@ -66,7 +66,7 @@ const requestListener = function (req, res) {
         let payload
         try 
         {
-            logger.verbose( `requestListener with payload to parse: {result}` );
+            logger.verbose( `requestListener with payload to parse: ${result}` );
             payload = JSON.parse(result);
         } 
         catch (ex) 
@@ -154,7 +154,7 @@ function getCurrentNumberOfUsers()
         });
         
         req.on("error", (error) => {
-            logger.error( `Error in getCurrentNumberOfUsers: {error.message ? error.message : error.toString()}.`);
+            logger.error( `Error in getCurrentNumberOfUsers: ${error.message ? error.message : error.toString()}.`);
             reject(error);
             });
         req.end();
@@ -192,13 +192,13 @@ function setPermissions( userName, queueName )
         
             res.on("end", () => {
                 const result = Buffer.concat(chunks).toString();
-                logger.verbose( `setPermissions: result from RabbitMQ call is: {result}.` );
+                logger.verbose( `setPermissions: result from RabbitMQ call is: ${result}.` );
                 resolve( result );
             });
           });
         
           req.on("error", (error) => {
-            logger.error( `Error in call from setPermissions to RabbitMQ:  {error.message ? error.message : error.toString()}` );
+            logger.error( `Error in call from setPermissions to RabbitMQ:  ${error.message ? error.message : error.toString()}` );
             reject(error);
           });
           req.write( data );
@@ -233,13 +233,13 @@ function createAccount( userName, password )
         
             res.on("end", () => {
                 const result = Buffer.concat(chunks).toString();
-                logger.verbose( `createAccount: {result}.`)
+                logger.verbose( `createAccount: ${result}.`)
                 resolve( result );
             });
           });
         
           req.on("error", (error) => {
-            logger.error( `Error in createAccount: {error.message ? error.message : error.toString()}`);
+            logger.error( `Error in createAccount: ${error.message ? error.message : error.toString()}`);
             reject(error);
           });
           req.write( data );
