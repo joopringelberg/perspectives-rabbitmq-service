@@ -5,20 +5,40 @@ The Perspectives Distributed Runtime (PDR) is written such that it assumes that 
 
 ```
     <Location "/rbsr/">
-      # Enable CORS headers
-      Header set Access-Control-Allow-Origin "https://mycontexts.com"
-      Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
-      Header set Access-Control-Allow-Headers "Content-Type"
-      Header set Access-Control-Allow-Credentials "true"
-      Header set Access-Control-Expose-Headers "Content-Type, Cache-Control, Accept-Ranges, ETag, Server"
-
       # Handle OPTIONS requests (preflight requests)
-      SetEnvIf Request_Method OPTIONS OPTIONS_REQUEST
-      Header always set Access-Control-Max-Age "3600" env=OPTIONS_REQUEST
+      <If "%{REQUEST_METHOD} == 'OPTIONS'">
+          SetHandler default-handler
+          Require all granted
+          RewriteEngine On
+          RewriteRule ^ - [R=204,L]
+      </If>
 
+      # Send on to the actual service:
       ProxyPass http://localhost:5988
+      ProxyPassReverse http://localhost:5988
     </Location>
 ```
+
+The PDR runs in a SharedWorker and specifies the content-type for requests to this service as application/json. For this reason, the browser considers it to be cross-origin, even if both origins are equal. For that reason it sends an OPTIONS request and we need to return a number of headers. We cannot do that inside this Location section, because the directives that make Apache return an empty response also prevent it from returning these headers...
+
+Hence we must add the headers in the main VirtualHost section, like this:
+
+```
+    # Send CORS related headers irrespective of Location. Apache won't send these headers for OPTIONS request in which SetHandler is used!
+    <IfModule mod_headers.c>
+        SetEnvIf Origin "^https://localhost:5177$" ORIGIN_ALLOWED=$0
+        SetEnvIf Origin "^https://mycontexts\.com$" ORIGIN_ALLOWED=$0
+        Header always set Access-Control-Allow-Origin "%{ORIGIN_ALLOWED}e" env=ORIGIN_ALLOWED
+
+        Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        Header always set Access-Control-Allow-Headers "Content-Type, Authorization, Accept"
+        Header always set Access-Control-Allow-Credentials "true"
+        Header always set Access-Control-Expose-Headers "Content-Type, Cache-Control, Accept-Ranges, ETag, Server, Accept"
+        Header always set Access-Control-Max-Age "3600"
+    </IfModule>
+```
+
+Here we have enabled a localhost origin for development purposes.
 
 It listens on the port configured with runtime parameter `--port` (in this example taken to be 5988).
 
