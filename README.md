@@ -90,6 +90,19 @@ To make sure that the service is restarted after system boot, install [pm2](http
 ```
 pm2 start selfregister.js -- --port=5988 --rabbithost=localhost --rabbitport=15672 --admin=ADMIN --adminpassword=PASSWORD --maxusers=100 --level=error
 ```
+
+To stop the service, list the processes, note the name and stop it:
+```
+pm2 list
+pm2 stop selfregister 
+```
+
+Restart again with the same command (e.g. with a new password). Afterwards, save the list so that on system reboot, the new password is used:
+
+```
+pm2 save
+```
+
 ## Apache configuration
 Even though the PDR consists of scripts in the domain https://mycontexts.com and the perspectives-rabbitmq-service is served from the same domain, because it is requested from within a Service Worker (actually, the SharedWorker running the PDR requests it, but all of its requests are sent through a Service Worker), the browser considers it to be a cross-domain request. For that reason, we need to have Apache send back CORS headers.
 
